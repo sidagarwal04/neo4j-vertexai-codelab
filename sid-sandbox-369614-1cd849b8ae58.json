@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "sid-sandbox-369614",
+  "private_key_id": "1cd849b8ae587d54a1d80e8ef95fe00c4044287f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7NdD9/gw6xcvZ\nGU7LLfS2ABkbaXNOUR+zacYaOY/2a6PXDE54/Okf0tbMX8PiLyjTpGHIF5pWlFsa\nMvljLxFV/8YYBZ+1PVDp6Dy1q89ZsTB0vjZ0FdGsp28I3WQxM/+vt/an0FcVSCP3\nCj2gZBnWhkb5nCme6tCtfkEHeq4j2p/Prm+lvWYn+L91OfOqmayY6kDGr4hmj+b6\nbr2/pED2iTU8FnCHqpKnflnc7JG6hp42q+Emei5pWA6Jr/YZrHobKf3/JgWFepxy\nRvS2fOa7BA5h6iPB0AG3Vss5qQfOf8kPzUSr314+3dcl9P5lOyg4SUuv2Qe3J9Gr\nYtOU5BRpAgMBAAECggEAFLUKLd342lNgjd3nwj+ODseJ/2c1ktcUS5MKj4IIc3hK\nghHhaC6JVrTKf4akMxOGT4qiKjC6KJN2VDqJLThakYmeDrAojzJ+DbFbbbjYUZJw\nyqjzevmi3JcUiAV8/JhE0tnlVYCM8VSubbfbQy9vUDRAC4IDdImClX4ekUY3ls16\nS6QjEODWTrbECla7FdSHfBY0mCCIF8F+ddBnfp57h91QPMWZJvjoLw1Nv+kAhjKm\nxKOTj09ICEFEz+WbCzgKfE0vcIlMELaIatiDungKxqZL2w2CNKlB7UujvTxRpUoO\ngNFBbbdMuasa+zXxp6C5oRZ5djACSJC5cpWtPOvEgQKBgQDrQcJtZt32PJ9h35m4\nw+zV1ZHnKH9E2zGKGoNi/ZsHjRQhqYpICC1mgXKdncj7BGf8I84CAqIQeRn5V+WY\nfAb6uf6cVDESIawr6ZzY2v8kfyyijC8mP1oYOJeurX1dSczp9COVxjgNFb56VHGV\nclQJ/8lhefM12+nKBocZVjuEeQKBgQDLt4sUL2h9LashA+NZbc4GK24Uh5UUvdlA\nin8jRuSGxnutQuHV6S9wKsvSYbismYsfZasv8fwXUMifPF7MMaZI8lynx0DthvWQ\ncgejd+kSsVUpLshUjj1Q/AZgW277KCXmh1jxpNMOl7NPdUXKJsR2+XVWEzykqwBe\neSI5E26zcQKBgHHRZ9p8KSkHnWjBwGKGz9+Iq0U175UFo0sYlrZe0hFuLO44U0GU\nSzrLqAMfomvnbtOrEvEgCv6DSJC8+MS0RMArGkbR6MfH6L96D7tPAJ/Ms3CU9/6+\nKb2MK76ECyIGIZCS4GCG/Pk/qt8OWcGfBY+s4+Y4FPXaxppKXDRi5vqpAoGBALeu\n40RsCrbz+p1mOBRmoaGGf1cbeRyeoclEF6bjQSMUzGdJKwAJpbBppiYn3rAiMgM5\nVMWCV19eg8awVHmhOuIDRfAyBSUmzzxS1PhcIlesdbEQcalsJ3ViCQ3Q45yqcqIN\n3/DiQTujJRa8ExVXJ0ZvX5Eg/0kqtsZ4SpdUIjjBAoGAGpl/NbLzIKNlzigGRthH\nc89UX1/0Ns6m4e3LkV4u8ENKSa+aCXfPExN74tOgn4Qk1xmr2X/cvi3PVxvIhfcg\n5iuTGxzzGOw7S7dZd7T1Km/ISxvNYy8PfnrYIZgqhP/tPtWJ7brslX9PM4w9ZvsS\ncMVhoLzvwOkVnMPKtjXiAuE=\n-----END PRIVATE KEY-----\n",
+  "client_email": "neo4j-vertexai-codelab@sid-sandbox-369614.iam.gserviceaccount.com",
+  "client_id": "107099456776573081857",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/neo4j-vertexai-codelab%40sid-sandbox-369614.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
