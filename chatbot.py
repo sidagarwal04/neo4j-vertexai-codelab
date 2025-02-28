@@ -23,7 +23,6 @@ class Neo4jDatabase:
     def __init__(self, uri, username, password):
         """Initialize Neo4j connection."""
         self.driver = GraphDatabase.driver(uri, auth=(username, password))
-        self.setup_vector_index() # Invoke setup_vector_index during initialization
         
     def close(self):
         """Close the driver connection."""
@@ -224,6 +223,11 @@ iface = gr.Interface(
     ],
     allow_flagging="never"
 )
+
+# Initialize Neo4j and set up the vector index
+neo4j_db = Neo4jDatabase(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
+neo4j_db.setup_vector_index()
+neo4j_db.close()
 
 # Launch the Gradio app
 if __name__ == "__main__":
