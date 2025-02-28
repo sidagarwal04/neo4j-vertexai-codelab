@@ -45,7 +45,7 @@ class Neo4jDatabase:
             CREATE VECTOR INDEX overview_embeddings IF NOT EXISTS
             FOR (m:Movie) ON (m.embedding)
             OPTIONS {indexConfig: {
-                `vector.dimensions`: 1536,  
+                `vector.dimensions`: 768,  
                 `vector.similarity_function`: 'cosine'}}
             """    
             session.run(query_index)
@@ -63,7 +63,7 @@ class Neo4jDatabase:
             # Vector similarity search query using the vector index
             query = """
             CALL db.index.vector.queryNodes(
-              'movie_embeddings',
+              'overview_embeddings',
               $top_k,
               $embedding
             ) YIELD node, score
