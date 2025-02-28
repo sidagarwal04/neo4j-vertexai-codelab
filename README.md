@@ -113,6 +113,10 @@ The application will be available at `http://localhost:7860` by default.
 - "I want a thriller that keeps me on the edge of my seat"
 - "Show me movies about artificial intelligence taking over the world"
 
+## 🤖 Try the Live Chatbot
+Explore the Movie Recommendations Chatbot powered by Neo4j and Vertex AI:
+🔗 [Movie Recommendations Chatbot](https://huggingface.co/spaces/sidagarwal04/movies-recommendations-chatbot)
+
 ## 📚 Learning Resources
 
 - [Neo4j Vector Search Documentation](https://neo4j.com/docs/cypher-manual/current/indexes-for-vector-search/)
