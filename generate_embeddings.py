@@ -23,7 +23,11 @@ NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
 # Set GOOGLE_APPLICATION_CREDENTIALS
+<<<<<<< HEAD
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./service-account.json" #update this with actual .json file name linked to the service account
+=======
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./sid-sandbox-369614-1cd849b8ae58.json"
+>>>>>>> master
 
 # Initialize Google Cloud AI Platform
 vertexai.init(project=os.getenv("PROJECT_ID"), location=os.getenv("LOCATION"))

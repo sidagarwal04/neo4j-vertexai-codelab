@@ -224,6 +224,12 @@ iface = gr.Interface(
     allow_flagging="never"
 )
 
+<<<<<<< HEAD
+=======
+# Get the PORT from the environment variable (Cloud Run uses 8080)
+port = int(os.getenv("PORT", 8080))
+
+>>>>>>> master
 # Initialize Neo4j and set up the vector index
 neo4j_db = Neo4jDatabase(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
 neo4j_db.setup_vector_index()
@@ -231,4 +237,9 @@ neo4j_db.close()
 
 # Launch the Gradio app
 if __name__ == "__main__":
+<<<<<<< HEAD
     iface.launch()
+=======
+    app.launch(server_name="0.0.0.0", server_port=port)
+    # iface.launch()
+>>>>>>> master

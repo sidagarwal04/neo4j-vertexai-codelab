@@ -80,4 +80,8 @@ def main():
     export_movie_embeddings()
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     main()
+=======
+    main()
+>>>>>>> master
