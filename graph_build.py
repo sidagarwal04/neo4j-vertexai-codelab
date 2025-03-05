@@ -237,15 +237,15 @@ def main():
     graph.load_movies('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_movies.csv', movie_limit)
 
     # Load related nodes and create relationships conditionally
-    graph.load_genres('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_genres.csv')
-    graph.load_production_companies('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_production_companies.csv')
-    graph.load_production_countries('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_production_countries.csv')
-    graph.load_spoken_languages('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_spoken_languages.csv')
-    graph.load_keywords('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_keywords.csv')
-    graph.load_person_actors('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_cast.csv')
-    graph.load_person_crew('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_crew.csv')
-    graph.load_links('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_links.csv')
-    graph.load_ratings('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_ratings_small.csv')
+    graph.load_genres('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_genres.csv')
+    graph.load_production_companies('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_production_companies.csv')
+    graph.load_production_countries('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_production_countries.csv')
+    graph.load_spoken_languages('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_spoken_languages.csv')
+    graph.load_keywords('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_keywords.csv')
+    graph.load_person_actors('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_cast.csv')
+    graph.load_person_crew('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_crew.csv')
+    graph.load_links('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_links.csv')
+    graph.load_ratings('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_ratings_small.csv')
 
 
     graph.close()
