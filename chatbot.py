@@ -23,7 +23,6 @@ class Neo4jDatabase:
     def __init__(self, uri, username, password):
         """Initialize Neo4j connection."""
         self.driver = GraphDatabase.driver(uri, auth=(username, password))
-        self.setup_vector_index() # Invoke setup_vector_index during initialization
         
     def close(self):
         """Close the driver connection."""
@@ -45,7 +44,7 @@ class Neo4jDatabase:
             CREATE VECTOR INDEX overview_embeddings IF NOT EXISTS
             FOR (m:Movie) ON (m.embedding)
             OPTIONS {indexConfig: {
-                `vector.dimensions`: 1536,  
+                `vector.dimensions`: 768,  
                 `vector.similarity_function`: 'cosine'}}
             """    
             session.run(query_index)
@@ -63,7 +62,7 @@ class Neo4jDatabase:
             # Vector similarity search query using the vector index
             query = """
             CALL db.index.vector.queryNodes(
-              'movie_embeddings',
+              'overview_embeddings',
               $top_k,
               $embedding
             ) YIELD node, score
@@ -225,6 +224,15 @@ iface = gr.Interface(
     allow_flagging="never"
 )
 
+# Get the PORT from the environment variable (Cloud Run uses 8080)
+port = int(os.getenv("PORT", 8080))
+
+# Initialize Neo4j and set up the vector index
+neo4j_db = Neo4jDatabase(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
+neo4j_db.setup_vector_index()
+neo4j_db.close()
+
 # Launch the Gradio app
 if __name__ == "__main__":
-    iface.launch()
+    app.launch(server_name="0.0.0.0", server_port=port)
+    # iface.launch()
