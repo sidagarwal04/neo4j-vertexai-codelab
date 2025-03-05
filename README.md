@@ -9,8 +9,6 @@ Check out the detailed explanation of this project in the blog post: [Building a
 
 ## 🚀 Overview
 
-[Rest of the original README content remains the same...]
-
 ### 2. Generate Embeddings
 
 Generate vector embeddings for movie descriptions:
