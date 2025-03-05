@@ -33,7 +33,6 @@ CALL db.create.setNodeVectorProperty(m, 'embedding', apoc.convert.fromJsonList(r
 
 Note: Ensure you have the APOC library installed in your Neo4j database to use `apoc.convert.fromJsonList()`.
 
-[Rest of the original README content remains the same...]
 
 ## 📄 License
 
