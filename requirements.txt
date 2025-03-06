@@ -1,0 +1,6 @@
+gradio>=4.0.0
+neo4j>=5.0.0
+numpy>=1.20.0
+python-dotenv>=1.0.0
+google-cloud-aiplatform>=1.30.0
+vertexai>=0.0.1
