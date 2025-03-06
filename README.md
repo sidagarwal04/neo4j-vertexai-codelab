@@ -97,13 +97,25 @@ python generate_embeddings.py
 - `export_embeddings_to_csv.py`: A utility script to export existing embeddings from Neo4j to a CSV file.
 
 **Loading Embeddings Directly from CSV**:
-If you want to skip generating embeddings, you can directly load the CSV into Neo4j using the following Cypher command:
+
+If you want to skip generating embeddings and load precomputed embeddings (in a CSV file) directly into Neo4j, you have two options:
+
+**a. Running Cypher Directly in Neo4j Aura Console**
+
+You can load the CSV file directly into Neo4j using the following Cypher query:
 
 ```cypher
 LOAD CSV WITH HEADERS FROM 'https://storage.googleapis.com/neo4j-vertexai-codelab/movie_embeddings.csv' AS row
 WITH row
 MATCH (m:Movie {tmdbId: toInteger(row.tmdbId)})
 SET m.embedding = apoc.convert.fromJsonList(row.embedding)
+```
+
+**b. Using the Python Script**
+
+Alternatively, you can run the load_embeddings.py script, which automates this process via the Neo4j Python driver.
+```bash
+python load_embeddings.py
 ```
 
 ### 3. Start the Recommender Chatbot
