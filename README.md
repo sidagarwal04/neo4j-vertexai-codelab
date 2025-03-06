@@ -43,7 +43,7 @@ You can try out the deployed versions of the chatbot:
 ### Prerequisites
 
 - Python 3.7+
-- Neo4j database (can be self-hosted or [Aura DB](https://console.neo4j.io/)(recommended)
+- Neo4j database (can be self-hosted or [Aura DB](https://console.neo4j.io/)(**recommended**))
 - Google Cloud account with Vertex AI API enabled
 - Service account with appropriate permissions for Vertex AI
 
