@@ -43,7 +43,7 @@ You can try out the deployed versions of the chatbot:
 ### Prerequisites
 
 - Python 3.7+
-- Neo4j database (can be self-hosted or Aura DB)
+- Neo4j database (can be self-hosted or [Aura DB](https://console.neo4j.io/)(recommended)
 - Google Cloud account with Vertex AI API enabled
 - Service account with appropriate permissions for Vertex AI
 
@@ -52,12 +52,12 @@ You can try out the deployed versions of the chatbot:
 1. Clone this repository
 2. Copy `example.env` to `.env` and fill in your configuration:
    ```
-   NEO4J_URI = your-neo4j-connection-string
-   NEO4J_USER = your-neo4j-username
-   NEO4J_PASSWORD = your-neo4j-password
-   PROJECT_ID = your-gcp-project-id
-   LOCATION = your-gcp-location
-   GOOGLE_CLOUD_PROJECT = your-gcp-project-id
+   NEO4J_URI=your-neo4j-connection-string
+   NEO4J_USER=your-neo4j-username
+   NEO4J_PASSWORD=your-neo4j-password
+   PROJECT_ID=your-gcp-project-id
+   LOCATION=your-gcp-location
+   GOOGLE_CLOUD_PROJECT=your-gcp-project-id
    ```
 3. Create a service account in Google Cloud and download the JSON key file
 4. Place the service account key in the project directory (referenced in `generate_embeddings.py`)
