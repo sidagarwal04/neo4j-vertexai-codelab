@@ -112,6 +112,11 @@ python chatbot.py
 The application will be available at `http://localhost:7860` by default.
 
 ## 🚀 Deploying to Cloud Run
+Before deploying to Cloud Run, ensure your `requirements.txt` file includes all necessary dependencies for Neo4j and Vertex AI integration. Additionally, you need a `Dockerfile` to containerize your application for deployment.
+
+Both requirements.txt and Dockerfile are present in this repository:
+- `requirements.txt`: Lists all the Python dependencies required to run the application.
+- `Dockerfile`: Defines the container environment, including the base image, required packages, and how the application is executed.
 
 If you want to deploy this application to Google Cloud Run for production use, follow these steps:
 
@@ -148,7 +153,7 @@ gcloud builds submit \
 ```
 
 ### 3. Deploy to Cloud Run
-
+Before deployment, ensure your requirements.txt file is properly configured with all necessary dependencies for your Neo4j and VertexAI integration.
 ```bash
 gcloud run deploy "$SERVICE_NAME" \
   --port=8080 \
@@ -163,7 +168,10 @@ gcloud run deploy "$SERVICE_NAME" \
 After deployment, your application will be accessible at a URL like:
 `https://movies-chatbot-[unique-id].us-central1.run.app/`
 
-Note: Make sure your application's Dockerfile is set up properly to run in a containerized environment. You'll need to include your service account credentials and environment variables in the container.
+Note: 
+- Your `requirements.txt` should list all Python dependencies. 
+- Make sure your application's `Dockerfile` is set up properly to run in a containerized environment. The `Dockerfile` should include a `pip install -r requirements.txt` command to ensure all dependencies are installed during the container build process.
+- You'll need to include your service account credentials (unless running from Google Cloud Shell directly) and environment variables in the container.
 
 ## 🧪 Example Queries
 
