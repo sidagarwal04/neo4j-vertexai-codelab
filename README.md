@@ -100,13 +100,11 @@ python generate_embeddings.py
 If you want to skip generating embeddings, you can directly load the CSV into Neo4j using the following Cypher command:
 
 ```cypher
-LOAD CSV WITH HEADERS FROM 'file:///movie_embeddings.csv' AS row
+LOAD CSV WITH HEADERS FROM 'https://storage.googleapis.com/neo4j-vertexai-codelab/movie_embeddings.csv' AS row
 WITH row
-MATCH (m:Movie {tmdbId: row.tmdbId})
-CALL db.create.setNodeVectorProperty(m, 'embedding', apoc.convert.fromJsonList(row.embedding))
+MATCH (m:Movie {tmdbId: toInteger(row.tmdbId)})
+SET m.embedding = apoc.convert.fromJsonList(row.embedding)
 ```
-
-Note: Ensure you have the APOC library installed in your Neo4j database to use `apoc.convert.fromJsonList()`.
 
 ### 3. Start the Recommender Chatbot
 
