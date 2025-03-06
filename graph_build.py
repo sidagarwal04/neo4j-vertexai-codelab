@@ -234,7 +234,7 @@ def main():
 
     # Load data from CSV files with a limit on entries for movies
     movie_limit = 12000  # Limit only applied to movies
-    graph.load_movies('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_movies.csv', movie_limit)
+    graph.load_movies('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_movies.csv', movie_limit)
 
     # Load related nodes and create relationships conditionally
     graph.load_genres('https://storage.googleapis.com/neo4j-vertexai-codelab/normalized_data/normalized_genres.csv')
