@@ -111,6 +111,60 @@ python chatbot.py
 
 The application will be available at `http://localhost:7860` by default.
 
+## 🚀 Deploying to Cloud Run
+
+If you want to deploy this application to Google Cloud Run for production use, follow these steps:
+
+### 1. Set up Environment Variables
+
+```bash
+# Set your Google Cloud project ID
+export GCP_PROJECT='your-project-id'  # Change this
+
+# Set your preferred region
+export GCP_REGION='us-central1'
+```
+
+### 2. Create the Repository and Build the Container Image
+
+```bash
+# Set the Artifact Registry repository name
+export AR_REPO='your-repo-name'  # Change this
+
+# Set your service name
+export SERVICE_NAME='movies-chatbot'  # Change if needed
+
+# Create the Artifact Registry repository
+gcloud artifacts repositories create "$AR_REPO" \
+  --location="$GCP_REGION" \
+  --repository-format=Docker
+
+# Configure Docker to use Google Cloud's Artifact Registry
+gcloud auth configure-docker "$GCP_REGION-docker.pkg.dev"
+
+# Build and submit the container image
+gcloud builds submit \
+  --tag "$GCP_REGION-docker.pkg.dev/$GCP_PROJECT/$AR_REPO/$SERVICE_NAME"
+```
+
+### 3. Deploy to Cloud Run
+
+```bash
+gcloud run deploy "$SERVICE_NAME" \
+  --port=8080 \
+  --image="$GCP_REGION-docker.pkg.dev/$GCP_PROJECT/$AR_REPO/$SERVICE_NAME" \
+  --allow-unauthenticated \
+  --region=$GCP_REGION \
+  --platform=managed \
+  --project=$GCP_PROJECT \
+  --set-env-vars=GCP_PROJECT=$GCP_PROJECT,GCP_REGION=$GCP_REGION
+```
+
+After deployment, your application will be accessible at a URL like:
+`https://movies-chatbot-[unique-id].us-central1.run.app/`
+
+Note: Make sure your application's Dockerfile is set up properly to run in a containerized environment. You'll need to include your service account credentials and environment variables in the container.
+
 ## 🧪 Example Queries
 
 - "I want to watch a sci-fi movie with time travel"
@@ -125,6 +179,7 @@ The application will be available at `http://localhost:7860` by default.
 - [Vertex AI Embeddings](https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings)
 - [Gemini API](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini)
 - [Gradio Documentation](https://gradio.app/docs/)
+- [Cloud Run Documentation](https://cloud.google.com/run/docs)
 
 ## 🤝 Contributing
 
