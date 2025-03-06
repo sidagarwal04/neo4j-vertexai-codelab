@@ -1,3 +1,4 @@
 # .gitignore
 .env
-sid-sandbox-369614-1cd849b8ae58.json
+*.json
+*.txt
