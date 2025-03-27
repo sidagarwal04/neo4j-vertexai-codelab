@@ -131,9 +131,9 @@ class GeminiService:
 class MovieRecommendationApp:
     """Main application class that combines Neo4j and Gemini for movie recommendations."""
     
-    def __init__(self, neo4j_uri, neo4j_user, neo4j_password, project_id, location):
+    def __init__(self, neo4j_uri, neo4j_user, neo4j_password, neo4j_database, project_id, location):
         """Initialize the application with Neo4j and Gemini services."""
-        self.neo4j = Neo4jDatabase(neo4j_uri, neo4j_user, neo4j_password)
+        self.neo4j = Neo4jDatabase(neo4j_uri, neo4j_user, neo4j_password, neo4j_database)
         self.gemini = GeminiService(project_id, location)
         self.vector_service = VectorService(project_id, location)
     
@@ -190,7 +190,8 @@ def handle_user_input(user_input):
     app = MovieRecommendationApp(
         NEO4J_URI, 
         NEO4J_USER, 
-        NEO4J_PASSWORD, 
+        NEO4J_PASSWORD,
+        NEO4J_DATABASE, 
         PROJECT_ID, 
         LOCATION
     )
