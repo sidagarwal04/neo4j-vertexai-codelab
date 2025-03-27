@@ -30,8 +30,9 @@ def main():
     uri = os.getenv('NEO4J_URI')
     user = os.getenv('NEO4J_USER')
     password = os.getenv('NEO4J_PASSWORD')
+    database = os.getenv('NEO4J_DATABASE')
 
-    graph = LoadEmbeddings(uri, user, password)
+    graph = LoadEmbeddings(uri, user, password, database)
 
     # Load embeddings
     graph.load_embeddings('https://storage.googleapis.com/neo4j-vertexai-codelab/movie_embeddings.csv')
