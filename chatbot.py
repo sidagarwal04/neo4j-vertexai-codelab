@@ -12,6 +12,7 @@ load_dotenv()
 NEO4J_URI = os.getenv('NEO4J_URI')
 NEO4J_USER = os.getenv('NEO4J_USER')
 NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
+NEO4J_DATABASE = os.getenv('NEO4J_DATABASE')
 
 # Google Cloud project ID
 PROJECT_ID = os.getenv('PROJECT_ID')
@@ -20,9 +21,9 @@ LOCATION = os.getenv('LOCATION')
 class Neo4jDatabase:
     """Class to handle Neo4j database operations."""
     
-    def __init__(self, uri, username, password):
+    def __init__(self, uri, username, password, database="neo4j"):
         """Initialize Neo4j connection."""
-        self.driver = GraphDatabase.driver(uri, auth=(username, password))
+        self.driver = GraphDatabase.driver(uri, auth=(username, password), database=database)
         
     def close(self):
         """Close the driver connection."""
@@ -130,9 +131,9 @@ class GeminiService:
 class MovieRecommendationApp:
     """Main application class that combines Neo4j and Gemini for movie recommendations."""
     
-    def __init__(self, neo4j_uri, neo4j_user, neo4j_password, project_id, location):
+    def __init__(self, neo4j_uri, neo4j_user, neo4j_password, neo4j_database, project_id, location):
         """Initialize the application with Neo4j and Gemini services."""
-        self.neo4j = Neo4jDatabase(neo4j_uri, neo4j_user, neo4j_password)
+        self.neo4j = Neo4jDatabase(neo4j_uri, neo4j_user, neo4j_password, neo4j_database)
         self.gemini = GeminiService(project_id, location)
         self.vector_service = VectorService(project_id, location)
     
@@ -189,7 +190,8 @@ def handle_user_input(user_input):
     app = MovieRecommendationApp(
         NEO4J_URI, 
         NEO4J_USER, 
-        NEO4J_PASSWORD, 
+        NEO4J_PASSWORD,
+        NEO4J_DATABASE, 
         PROJECT_ID, 
         LOCATION
     )
@@ -225,7 +227,7 @@ iface = gr.Interface(
 )
 
 # Initialize Neo4j and set up the vector index
-neo4j_db = Neo4jDatabase(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
+neo4j_db = Neo4jDatabase(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD, NEO4J_DATABASE)
 neo4j_db.setup_vector_index()
 neo4j_db.close()
 

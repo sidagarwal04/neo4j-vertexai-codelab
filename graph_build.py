@@ -226,8 +226,9 @@ def main():
     uri = os.getenv('NEO4J_URI')
     user = os.getenv('NEO4J_USER')
     password = os.getenv('NEO4J_PASSWORD')
+    database = os.getenv('NEO4J_DATABASE')
 
-    graph = CreateGraph(uri, user, password)
+    graph = CreateGraph(uri, user, password, database)
 
     graph.db_cleanup()
     graph.create_constraints_indexes()
