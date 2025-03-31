@@ -57,7 +57,6 @@ You can try out the deployed versions of the chatbot:
    NEO4J_PASSWORD=your-neo4j-password
    PROJECT_ID=your-gcp-project-id
    LOCATION=your-gcp-location
-   GOOGLE_CLOUD_PROJECT=your-gcp-project-id
    ```
 3. Create a service account in Google Cloud and download the JSON key file
 4. Place the service account key in the project directory (referenced in `generate_embeddings.py`)
