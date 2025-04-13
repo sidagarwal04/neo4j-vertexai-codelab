@@ -66,14 +66,12 @@ class Neo4jDatabase:
               'overview_embeddings',
               $top_k,
               $embedding
-            ) YIELD node, score
-            WITH node as m, score
+            ) YIELD node as m, score
             RETURN m.title AS title, 
                    m.overview AS plot, 
                    m.release_date AS released, 
                    m.tagline AS tagline,
                    score
-            ORDER BY score DESC
             """
             
             result = session.run(
