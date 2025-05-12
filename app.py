@@ -222,50 +222,6 @@ class MovieRecommendationApp:
         except Exception as e:
             return f"Error processing query: {str(e)}"
     
-    # def process_query(self, user_input):
-    #     """Process a user query to get movie recommendations using vector search."""
-    #     try:
-    #         # Step 1: Generate embedding for user query - using the same model that was used for the movies
-    #         query_embedding = self.vector_service.generate_embedding(user_input)
-            
-    #         # Step 2: Get recommendations using vector similarity search
-    #         recommendations = self.neo4j.get_movie_recommendations_by_vector(query_embedding)
-            
-    #         # Step 3: Use Gemini to craft a personalized response
-    #         if recommendations:
-    #             movies_context = "\n".join([
-    #                 f"Movie: {rec['title']}\n"
-    #                 f"Plot: {rec['plot']}\n"
-    #                 f"Released: {rec['released']}\n"
-    #                 f"Tagline: {rec['tagline']}\n"
-    #                 f"Similarity Score: {rec['similarity']:.4f}"
-    #                 for rec in recommendations
-    #             ])
-                
-    #             explanation_prompt = f"""
-    #             The user asked: "{user_input}"
-                
-    #             Based on their query, I found these movies (with semantic similarity scores):
-    #             {movies_context}
-                
-    #             Create a friendly and helpful response that:
-    #             1. Acknowledges their request
-    #             2. Explains why these recommendations match their request (referring to plot elements, themes, etc.)
-    #             3. Presents the movies in a clear, readable format with titles, release years, and brief descriptions
-    #             4. Asks if they'd like more specific recommendations
-                
-    #             Important note: Don't simply list out all the movies with bullet points or numbers. Format it as a conversational response while still highlighting the key information about each movie.
-    #             """
-                
-    #             response = self.gemini.generate_response(explanation_prompt)
-    #         else:
-    #             response = f"I couldn't find any movies matching '{user_input}'. Our database might not have embeddings for all movies yet. Could you try a different query?"
-            
-    #         return response
-        
-    #     except Exception as e:
-    #         return f"Sorry, I encountered an error: {str(e)}. Please try again."
-    
     def close(self):
         """Close all connections."""
         self.neo4j.close()

@@ -52,18 +52,29 @@ The system performs semantic search using vector embeddings to retrieve relevant
 - Service account with appropriate permissions for Vertex AI
 
 ### Environment Configuration
+💡 Tip: Run these steps in [Google Cloud Shell](https://shell.cloud.google.com) for a pre-authenticated environment with gcloud, Vertex AI SDK, and permissions already set up — no need to manually manage service account keys.
 
 1. Clone this repository
-2. Copy `example.env` to `.env` and fill in your configuration:
+   ```bash
+   git clone https://github.com/your-username/neo4j-vertexai-codelab.git
+   cd neo4j-vertexai-codelab
    ```
+2. Copy `example.env` to `.env` and fill in your configuration:
+   ```bash
    NEO4J_URI=your-neo4j-connection-string
    NEO4J_USER=your-neo4j-username
    NEO4J_PASSWORD=your-neo4j-password
    PROJECT_ID=your-gcp-project-id
    LOCATION=your-gcp-location
    ```
-3. Create a service account in Google Cloud and download the JSON key file
-4. Place the service account key in the project directory (referenced in `generate_embeddings.py`)
+3. (Optional) Create a service account in Google Cloud and download the JSON key file
+    - Ensure it has access to Vertex AI and Cloud Storage.
+    - Grant roles: Vertex AI User, Storage Object Viewer, etc.
+4. (Optional) Place the service account key JSON file in the project directory (referenced in `generate_embeddings.py`)
+    - Set the path using:
+      ```bash
+      export GOOGLE_APPLICATION_CREDENTIALS="path/to/your-key.json"
+      ```
 
 ### Installation
 
@@ -73,7 +84,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install neo4j vertexai gradio langchain_google_vertexai python-dotenv
+pip install -r requirements.txt
 ```
 
 ## 🏃‍♀️ Running the Application
@@ -85,7 +96,6 @@ First, load movie data into Neo4j:
 ```bash
 python graph_build.py
 ```
-
 
 ### 2. Generate Embeddings
 
@@ -175,16 +185,19 @@ gcloud builds submit \
 ### 3. Deploy to Cloud Run
 Before deployment, ensure your requirements.txt file is properly configured with all necessary dependencies for your Neo4j and VertexAI integration.
 
-#### Setting Environment Variables from `.env` File
-Before deploying the application to Cloud Run, ensure that all required environment variables are set. If you are running the deployment from VS Code locally, you can extract environment variables from the `.env` file and pass them dynamically to Cloud Run.
+#### Setting Environment Variables from `.env.yaml` File
+Before deploying the application to Cloud Run, configure `.env.yaml` for Cloud Run Deployment in your project root with the following structure:
 
 ```bash
-ENV_VARS=$(grep -v '^#' .env | sed 's/ *= */=/g' | xargs -I{} echo -n "{},") 
-ENV_VARS=${ENV_VARS%,}
+NEO4J_URI: "bolt+s://<your-neo4j-uri>"
+NEO4J_USER: "neo4j"
+NEO4J_PASSWORD: "<your-neo4j-password>"
+PROJECT_ID: "<your-gcp-project-id>"
+LOCATION: "<your-gcp-region>"
 ```
-This ensures that all environment variables are automatically included during deployment, eliminating the need for manual entry. Once set, you can proceed with the gcloud run deploy command.
+✅ This YAML file is used during Cloud Run deployment to inject environment variables into your container runtime. Once set, you can proceed with the gcloud run deploy command.
 
-The following command reads the .env file, removes commented lines, formats the variables, and prepares them for deployment:
+The following command deploys your application to Cloud Run using environment variables defined in `.env.yaml`. It ensures proper formatting, removes any commented lines automatically handled by gcloud, and sets up the containerized app with public access:
 ```bash
 gcloud run deploy "$SERVICE_NAME" \
   --port=8080 \
@@ -193,7 +206,7 @@ gcloud run deploy "$SERVICE_NAME" \
   --region=$GCP_REGION \
   --platform=managed \
   --project=$GCP_PROJECT \
-  --set-env-vars="GCP_PROJECT=$GCP_PROJECT,GCP_REGION=$GCP_REGION,$ENV_VARS"
+  --env-vars-file=.env.yaml
 ```
 
 After deployment, your application will be accessible at a URL like:
@@ -206,8 +219,8 @@ Note:
 
 ## 🧪 Example Queries
 
-- "I want to watch a sci-fi movie with time travel"
-- "Recommend me a romantic comedy with a happy ending"
+- "Which time travel movies star Bruce Willis?"
+- "Show me thrillers from the 2000s with mind-bending plots."
 - "I'm in the mood for something with superheroes but not too serious"
 - "I want a thriller that keeps me on the edge of my seat"
 - "Show me movies about artificial intelligence taking over the world"
