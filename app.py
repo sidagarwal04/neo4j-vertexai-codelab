@@ -1,3 +1,8 @@
+from prompts import (
+    cypher_generation_prompt,
+    summarize_results_prompt
+) 
+
 import os
 import vertexai
 import numpy as np
@@ -29,26 +34,34 @@ class Neo4jDatabase:
         self.driver.close()
     
     def setup_vector_index(self):
-        """Set up a vector index in Neo4j for the movie embeddings."""
+        """Set up or load a vector index in Neo4j for the movie embeddings."""
         with self.driver.session() as session:
             try:
-                # Drop the existing vector index if it exists
-                session.run("DROP INDEX overview_embeddings IF EXISTS")
-                print("Old index dropped")
-            except Exception as e:
-                print(f"No index to drop: {e}")
+                # Check if the vector index already exists
+                check_query = """
+                SHOW VECTOR INDEXES YIELD name
+                WHERE name = 'overview_embeddings'
+                RETURN name
+                """
+                result = session.run(check_query)
+                existing_index = result.single()
 
-            # Create a new vector index on the embedding property
-            print("Creating new vector index")
-            query_index = """
-            CREATE VECTOR INDEX overview_embeddings IF NOT EXISTS
-            FOR (m:Movie) ON (m.embedding)
-            OPTIONS {indexConfig: {
-                `vector.dimensions`: 768,  
-                `vector.similarity_function`: 'cosine'}}
-            """    
-            session.run(query_index)
-            print("Vector index created successfully")
+                if existing_index:
+                    print("Vector index 'overview_embeddings' already exists. No need to create a new one.")
+                else:
+                    # Create a new vector index if it doesn't exist
+                    print("Creating new vector index")
+                    query_index = """
+                    CREATE VECTOR INDEX overview_embeddings
+                    FOR (m:Movie) ON (m.embedding)
+                    OPTIONS {indexConfig: {
+                        `vector.dimensions`: 768,  
+                        `vector.similarity_function`: 'cosine'}}
+                    """
+                    session.run(query_index)
+                    print("Vector index created successfully")
+            except Exception as e:
+                print(f"Error while setting up vector index: {e}")
     
     def get_movie_recommendations_by_vector(self, user_embedding, top_k=5):
         """
@@ -127,6 +140,37 @@ class GeminiService:
         response = self.model.generate_content(prompt)
         return response.text
 
+def get_ontology_from_neo4j(driver):
+    with driver.session() as session:
+        result = session.run("CALL db.schema.nodeTypeProperties()")
+        
+        nodes = {}
+        relationships = set()
+
+        for record in result:
+            node_labels = record["nodeLabels"]
+            property_name = record["propertyName"]
+            node_type = ":".join(node_labels)
+            nodes.setdefault(node_type, set()).add(property_name)
+        
+        # Fetch relationships separately
+        rel_result = session.run("CALL db.relationshipTypes() YIELD relationshipType RETURN relationshipType")
+        for record in rel_result:
+            relationships.add(record["relationshipType"])
+
+        # Construct ontology string
+        ontology_str = ""
+
+        for node, props in nodes.items():
+            prop_list = ", ".join(props)
+            ontology_str += f"({node}) has properties: {prop_list}\n"
+
+        for rel in relationships:
+            ontology_str += f"(:Node)-[:{rel}]->(:Node)\n"
+
+        return ontology_str.strip()
+
+
 class MovieRecommendationApp:
     """Main application class that combines Neo4j and Gemini for movie recommendations."""
     
@@ -137,48 +181,90 @@ class MovieRecommendationApp:
         self.vector_service = VectorService(project_id, location)
     
     def process_query(self, user_input):
-        """Process a user query to get movie recommendations using vector search."""
         try:
-            # Step 1: Generate embedding for user query - using the same model that was used for the movies
+            # Step 1: Vector search
             query_embedding = self.vector_service.generate_embedding(user_input)
+            vector_results = self.neo4j.get_movie_recommendations_by_vector(query_embedding, top_k=5)
             
-            # Step 2: Get recommendations using vector similarity search
-            recommendations = self.neo4j.get_movie_recommendations_by_vector(query_embedding)
+            if not vector_results:
+                return "Sorry, no relevant results found using vector search."
+
+            # Step 2: Format the vector search results as context for the LLM
+            context = "Information from vector search:\n"
+            for i, result in enumerate(vector_results):
+                context += f"[Result {i+1}] Title: {result['title']}\nPlot: {result['plot']}\n\n"
+
+            # Step 3: Generate Cypher query using the context and Gemini
+            ontology = get_ontology_from_neo4j(self.neo4j.driver)
+            cypher_prompt = cypher_generation_prompt(user_input, context, ontology)
+            generated_query = self.gemini.generate_response(cypher_prompt).strip()
+
+
+            if generated_query.startswith("```"):
+                lines = generated_query.splitlines()
+                # Remove first line (e.g., ```cypher) and last line (```)
+                lines = [line for line in lines if not line.strip().startswith("```")]
+                generated_query = "\n".join(lines).strip()
             
-            # Step 3: Use Gemini to craft a personalized response
-            if recommendations:
-                movies_context = "\n".join([
-                    f"Movie: {rec['title']}\n"
-                    f"Plot: {rec['plot']}\n"
-                    f"Released: {rec['released']}\n"
-                    f"Tagline: {rec['tagline']}\n"
-                    f"Similarity Score: {rec['similarity']:.4f}"
-                    for rec in recommendations
-                ])
-                
-                explanation_prompt = f"""
-                The user asked: "{user_input}"
-                
-                Based on their query, I found these movies (with semantic similarity scores):
-                {movies_context}
-                
-                Create a friendly and helpful response that:
-                1. Acknowledges their request
-                2. Explains why these recommendations match their request (referring to plot elements, themes, etc.)
-                3. Presents the movies in a clear, readable format with titles, release years, and brief descriptions
-                4. Asks if they'd like more specific recommendations
-                
-                Important note: Don't simply list out all the movies with bullet points or numbers. Format it as a conversational response while still highlighting the key information about each movie.
-                """
-                
-                response = self.gemini.generate_response(explanation_prompt)
-            else:
-                response = f"I couldn't find any movies matching '{user_input}'. Our database might not have embeddings for all movies yet. Could you try a different query?"
+            print("Generated Cypher:\n", generated_query)
+
+            # Step 4: Run Cypher query
+            with self.neo4j.driver.session() as session:
+                result = session.run(generated_query)
+                records = [record.data() for record in result]
             
-            return response
-        
+            # Step 5: Summarize results
+            summary_prompt = summarize_results_prompt(user_input, {"query": generated_query, "results": records}, len(records), str(records))
+            summary = self.gemini.generate_response(summary_prompt)
+
+            return summary
+
         except Exception as e:
-            return f"Sorry, I encountered an error: {str(e)}. Please try again."
+            return f"Error processing query: {str(e)}"
+    
+    # def process_query(self, user_input):
+    #     """Process a user query to get movie recommendations using vector search."""
+    #     try:
+    #         # Step 1: Generate embedding for user query - using the same model that was used for the movies
+    #         query_embedding = self.vector_service.generate_embedding(user_input)
+            
+    #         # Step 2: Get recommendations using vector similarity search
+    #         recommendations = self.neo4j.get_movie_recommendations_by_vector(query_embedding)
+            
+    #         # Step 3: Use Gemini to craft a personalized response
+    #         if recommendations:
+    #             movies_context = "\n".join([
+    #                 f"Movie: {rec['title']}\n"
+    #                 f"Plot: {rec['plot']}\n"
+    #                 f"Released: {rec['released']}\n"
+    #                 f"Tagline: {rec['tagline']}\n"
+    #                 f"Similarity Score: {rec['similarity']:.4f}"
+    #                 for rec in recommendations
+    #             ])
+                
+    #             explanation_prompt = f"""
+    #             The user asked: "{user_input}"
+                
+    #             Based on their query, I found these movies (with semantic similarity scores):
+    #             {movies_context}
+                
+    #             Create a friendly and helpful response that:
+    #             1. Acknowledges their request
+    #             2. Explains why these recommendations match their request (referring to plot elements, themes, etc.)
+    #             3. Presents the movies in a clear, readable format with titles, release years, and brief descriptions
+    #             4. Asks if they'd like more specific recommendations
+                
+    #             Important note: Don't simply list out all the movies with bullet points or numbers. Format it as a conversational response while still highlighting the key information about each movie.
+    #             """
+                
+    #             response = self.gemini.generate_response(explanation_prompt)
+    #         else:
+    #             response = f"I couldn't find any movies matching '{user_input}'. Our database might not have embeddings for all movies yet. Could you try a different query?"
+            
+    #         return response
+        
+    #     except Exception as e:
+    #         return f"Sorry, I encountered an error: {str(e)}. Please try again."
     
     def close(self):
         """Close all connections."""
@@ -212,16 +298,19 @@ iface = gr.Interface(
         label="Recommendations",
         lines=12
     ),
-    title="AI Movie Recommendation System",
-    description="Get personalized movie recommendations using semantic search with Neo4j vector search and Google Vertex AI!",
+    title="Smart Movie Recommender with GraphRAG",
+    description=(
+        "Discover movies you’ll love — powered by Neo4j and Vertex AI!\n"
+        "This assistant combines semantic search with knowledge graph reasoning — using vector similarity for relevant matches and LLM-generated Cypher queries for deeper insights from movie plots, genres, and relationships."
+    ),
     examples=[
-        ["I want to watch a sci-fi movie with time travel"],
-        ["Recommend me a romantic comedy with a happy ending"],
-        ["I'm in the mood for something with superheroes but not too serious"],
-        ["I want a thriller that keeps me on the edge of my seat"],
-        ["Show me movies about artificial intelligence taking over the world"]
+        ["Which time travel movies star Bruce Willis?"],
+        ["Find romantic comedies directed by female directors."],
+        ["Recommend sci-fi movies featuring AI and starring Keanu Reeves."],
+        ["Show me thrillers from the 2000s with mind-bending plots."],
+        ["List superhero movies where the villain turns good."]
     ],
-    allow_flagging="never"
+    flagging_mode="never"
 )
 
 # Initialize Neo4j and set up the vector index
