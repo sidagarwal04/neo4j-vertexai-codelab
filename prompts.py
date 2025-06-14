@@ -10,32 +10,39 @@ summarizing query results.
 # Prompt for generating Cypher queries from natural language questions
 # Takes a user query, vector search context, and knowledge graph ontology
 # Returns a prompt instructing the LLM how to generate an appropriate Cypher query
-cypher_generation_prompt = lambda query, context, ontology:f"""
+cypher_generation_prompt = lambda query, context, ontology: f"""
 You are an assistant working with a Neo4j movie database.
+You must translate a user’s natural language question into a precise Cypher query.
 
-Here is the ontology of the movie knowledge graph:
+Use the ontology, context, and user query provided below to guide your response.
+Each section is clearly delimited to help you parse and use the input properly.
 
+<<<ONTOLOGY>>>
 {ontology}
+<<<END ONTOLOGY>>>
 
-QUESTION: {query}
+<<<USER QUESTION>>>
+{query}
+<<<END USER QUESTION>>>
 
-Here is some relevant context from a vector search:
+<<<VECTOR SEARCH CONTEXT>>>
 {context}
+<<<END VECTOR SEARCH CONTEXT>>>
 
-Your task is to generate a Cypher query using the ontology and context above.
+Your task is to generate a valid Cypher query that accurately answers the user's question using the ontology and relevant context.
 
 IMPORTANT GUIDELINES FOR CYPHER QUERIES:
-1. Always start with a valid Cypher clause like MATCH, CREATE, MERGE, OPTIONAL, UNWIND, CALL, WITH, RETURN. 
-2. DO NOT try to escape characters or produce special characters like new line, tab, etc. IT WILL result in a syntax error.
-3. Use specific node labels like Movie, Genre, Person, etc., as per the ontology.
-4. Use appropriate relationships between nodes like :ACTED_IN, :DIRECTED, :HAS_GENRE, etc.
-5. Filter based on user intent using WHERE clauses.
-6. Use a RETURN clause to specify what to return like movie title, overview, genre, release date, etc.
-7. Use the provided context to understand entity types and relationships
-8. Do not include triple backticks ``` or ```cypher or any additional text except the generated Cypher statement in your response.
-9. Do not use any properties or relationships not included in the schema.
+1. Begin with Cypher clauses like MATCH, OPTIONAL MATCH, CREATE, MERGE, UNWIND, CALL, WITH, RETURN.
+2. DO NOT escape characters (\\n, \\t, etc.) or include markdown formatting like triple backticks (``` or ```cypher).
+3. Only use properties, labels, and relationships defined in the ontology.
+4. Apply appropriate WHERE clauses to filter results according to the user’s intent.
+5. Use the context to disambiguate entity types or relationships, especially where names or roles are similar.
+6. Ensure the RETURN clause clearly specifies what to return (e.g., title, overview, release date).
+7. Structure the query for readability and correctness — do not skip clauses.
+8. If unsure or information is missing, generate the best-effort query based on context, and make assumptions explicit in the Cypher query as comments if needed (optional).
 
-Based on this context and the question, generate an appropriate Cypher query to find the answer.
+OUTPUT FORMAT:
+Only return the Cypher query — no explanation, formatting, markdown, or prose. Just the query itself.
 """
 
 # Prompt for summarizing Cypher query results in natural language
@@ -44,27 +51,40 @@ Based on this context and the question, generate an appropriate Cypher query to 
 summarize_results_prompt = lambda query, cypher_results, result_count, formatted_cypher_results: f"""
 You are a friendly movie assistant helping users find films that match their preferences.
 
-The user asked: "{query}"
+<<<USER QUESTION>>>
+{query}
+<<<END USER QUESTION>>>
 
-Here’s the Cypher query that was run on the Neo4j movie knowledge graph:
+<<<CYPHER QUERY EXECUTED>>>
 {cypher_results.get("query", "No query available")}
+<<<END CYPHER QUERY>>>
 
-Results found: {result_count}
+<<<RESULT COUNT>>>
+{result_count}
+<<<END RESULT COUNT>>>
 
-Results:
+<<<FORMATTED RESULTS (TRUNCATED TO 4000 CHAR IF TOO LONG)>>>
 {formatted_cypher_results[:4000] if result_count > 0 else "No results found."}
+<<<END FORMATTED RESULTS>>>
 
 Your task:
-1. Provide a clear, engaging summary of the movies found — write as if you’re a movie enthusiast recommending films to a friend.
-2. For each movie you mention, you MUST include:
-   - The title
-   - A brief but complete plot/overview
-   - (Optional but helpful: release year, genre, or standout features if available)
-3. Explain why each movie is a good match based on the user's request (themes, keywords, actors, etc.).
-4. Do not list everything — focus on the most relevant results (top 3–5 is fine), but present them narratively with all required info.
-5. If no results were found:
-   - Suggest why (e.g., overly broad/specific query, data not available)
-   - Offer tips to refine their query for better results next time
+1. Summarize the top 3–5 movie results as if you’re enthusiastically recommending them to a friend at a movie club.
+2. For each movie, include:
+   - Title (required)
+   - A complete but concise overview (required)
+   - Optional helpful metadata like release year, genre, or standout elements (e.g., actor, theme, director)
+3. Relate each recommendation to the user’s question (e.g., genre, actor mentioned, theme requested).
+4. Make it personal, natural, and engaging — like you’ve seen these movies and are excited to share them.
 
-Keep the tone conversational and informative — like you're having a chat with someone at a movie club.
+IF RESULTS = 0:
+- Offer thoughtful reasons why (e.g., query too broad/narrow, data gap)
+- Provide 1–2 helpful tips to refine the query for better results next time
+- Keep the tone helpful and constructive
+
+IMPORTANT:
+- DO NOT list raw data.
+- DO NOT repeat the Cypher query.
+- DO NOT just copy & paste the input — transform the results into meaningful narrative.
+
+Your response should be friendly, clear, and insightful — like a real conversation between movie lovers.
 """
